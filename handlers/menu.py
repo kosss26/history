@@ -80,15 +80,8 @@ def get_story_card_keyboard(story_id: str, user_id: int, has_active_run: bool, a
     
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
-def get_service_buttons(run_id: int, scene_id: str) -> list:
-    """Создать сервисные кнопки для сцены"""
-    return [
-        [
-            InlineKeyboardButton(text=BACK_TO_MENU, callback_data="service_menu"),
-            InlineKeyboardButton(text=BACK_TO_STORIES, callback_data="show_stories:0"),
-            InlineKeyboardButton(text=REPEAT_SCENE, callback_data=f"repeat_scene:{run_id}:{scene_id}")
-        ]
-    ]
+# Функция get_service_buttons удалена - сервисные кнопки убраны из сцен
+# Навигация только через ReplyKeyboard
 
 def get_ending_keyboard(story_id: str, allow_restart: bool) -> InlineKeyboardMarkup:
     """Создать клавиатуру для финала"""
@@ -164,11 +157,6 @@ async def continue_story(message: Message):
     result = await story_engine.continue_story(run.run_id)
     if result:
         text, keyboard, run_id = result
-        
-        # Добавляем сервисные кнопки
-        if keyboard:
-            service_buttons = get_service_buttons(run_id, run.current_scene)
-            keyboard.inline_keyboard.extend(service_buttons)
         
         await message.answer(text, reply_markup=keyboard)
     else:
@@ -353,12 +341,10 @@ async def start_story(callback: CallbackQuery):
         
         text, keyboard, run_id = result
         
-        # Добавляем сервисные кнопки
+        # Сервисные кнопки убраны - навигация только через ReplyKeyboard
         if keyboard:
             run = await RunRepository._get_run_by_id(run_id)
             if run:
-                service_buttons = get_service_buttons(run_id, run.current_scene)
-                keyboard.inline_keyboard.extend(service_buttons)
         
         await callback.message.edit_text(text, reply_markup=keyboard)
         await callback.answer()
@@ -387,11 +373,6 @@ async def continue_story_callback(callback: CallbackQuery):
     result = await story_engine.continue_story(active_run.run_id)
     if result:
         text, keyboard, run_id = result
-        
-        # Добавляем сервисные кнопки
-        if keyboard:
-            service_buttons = get_service_buttons(run_id, active_run.current_scene)
-            keyboard.inline_keyboard.extend(service_buttons)
         
         await callback.message.edit_text(text, reply_markup=keyboard)
         await callback.answer()
@@ -430,11 +411,6 @@ async def repeat_scene(callback: CallbackQuery):
     result = await story_engine.continue_story(run_id)
     if result:
         text, keyboard, run_id = result
-        
-        # Добавляем сервисные кнопки
-        if keyboard:
-            service_buttons = get_service_buttons(run_id, scene_id)
-            keyboard.inline_keyboard.extend(service_buttons)
         
         await callback.message.answer(text, reply_markup=keyboard)
         await callback.answer("✅ Сцена повторена")
@@ -502,12 +478,10 @@ async def restart_story(callback: CallbackQuery):
     if result:
         text, keyboard, run_id = result
         
-        # Добавляем сервисные кнопки
+        # Сервисные кнопки убраны - навигация только через ReplyKeyboard
         if keyboard:
             run = await RunRepository._get_run_by_id(run_id)
             if run:
-                service_buttons = get_service_buttons(run_id, run.current_scene)
-                keyboard.inline_keyboard.extend(service_buttons)
         
         await callback.message.edit_text(text, reply_markup=keyboard)
         await callback.answer("✅ История перезапущена")

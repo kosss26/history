@@ -133,82 +133,95 @@ async def process_choice(callback: CallbackQuery):
     
     user_id = callback.from_user.id
     
-    # Проверяем, что попытка принадлежит пользователю
-    from storage.repository import RunRepository
-    run = await RunRepository._get_run_by_id(run_id)
-    
-    if not run:
-        await callback.answer("❌ Попытка прохождения не найдена", show_alert=True)
-        await callback.message.edit_text("❌ Ошибка: попытка прохождения не найдена.")
-        return
-    
-    if run.user_id != user_id:
-        await callback.answer("❌ Эта попытка принадлежит другому пользователю", show_alert=True)
-        return
-    
-    if run.is_finished:
-        await callback.answer("❌ Эта история уже завершена", show_alert=True)
-        return
-    
-    # Проверяем, что сцена совпадает
-    if run.current_scene != scene_id:
-        await callback.answer("❌ Сцена уже изменилась", show_alert=True)
-        # Обновляем сообщение текущей сценой
-        result = await story_engine.continue_story(run_id)
-        if result:
-            text, keyboard, _ = result
-            await callback.message.edit_text(text, reply_markup=keyboard)
-        return
-    
-    # Обрабатываем выбор
-    result = await story_engine.process_choice(run_id, scene_id, choice_id)
-    
-    if result is None:
-        await callback.answer("❌ Ошибка обработки выбора (возможно, условие не выполнено)", show_alert=True)
-        return
-    
-    text, keyboard, new_run_id = result
-    
-    # Проверяем, это финал?
-    run_after = await RunRepository._get_run_by_id(new_run_id)
-    is_finished = run_after and run_after.is_finished
-    
-    if is_finished:
-        # Это финал - оформляем красиво
-        from utils.ui_texts import get_ending_header, get_ending_keyboard
-        
-        story = story_engine.get_story(run_after.story_id)
-        if story:
-            endings = story.get("endings", {})
-            ending = endings.get(run_after.current_scene, {})
-            ending_type = ending.get("ending_type", "neutral")
-            
-            header = get_ending_header(ending_type)
-            allow_restart = story.get("allow_restart", False)
-            
-            formatted_text = f"{header}\n\n{text}"
-            keyboard = get_ending_keyboard(run_after.story_id, allow_restart)
-        else:
-            # История не найдена, но финал есть
-            formatted_text = f"🏁 Финал\n\n{text}"
-            keyboard = InlineKeyboardMarkup(inline_keyboard=[
-                [InlineKeyboardButton(text="📚 Другие истории", callback_data="show_stories:0")],
-                [InlineKeyboardButton(text="🏠 Меню", callback_data="service_menu")]
-            ])
-    else:
-        # Обычная сцена - добавляем сервисные кнопки
-        from handlers.menu import get_service_buttons
-        if keyboard:
-            service_buttons = get_service_buttons(new_run_id, run_after.current_scene if run_after else scene_id)
-            keyboard.inline_keyboard.extend(service_buttons)
-        formatted_text = text
-    
-    # Удаляем старую клавиатуру и обновляем сообщение
-    await callback.message.edit_reply_markup(reply_markup=None)
-    await callback.message.edit_text(formatted_text, reply_markup=keyboard)
+    # ВСЕГДА вызываем answer() как можно раньше для мгновенной реакции
     await callback.answer()
     
-    logger.info(f"Пользователь {user_id} сделал выбор {choice_id} в сцене {scene_id} (run_id: {new_run_id})")
+    # Проверяем, что попытка принадлежит пользователю
+    from storage.repository import RunRepository
+    from aiogram.types import ReplyKeyboardRemove
+    
+    try:
+        run = await RunRepository._get_run_by_id(run_id)
+        
+        if not run:
+            await callback.message.edit_reply_markup(reply_markup=None)
+            await callback.message.answer("❌ Ошибка: попытка прохождения не найдена.")
+            return
+        
+        if run.user_id != user_id:
+            await callback.message.edit_reply_markup(reply_markup=None)
+            return
+        
+        # Повторное нажатие - без alert, просто выходим
+        if run.is_finished:
+            await callback.message.edit_reply_markup(reply_markup=None)
+            return
+        
+        # Проверяем, что сцена совпадает
+        if run.current_scene != scene_id:
+            # Обновляем сообщение текущей сценой
+            result = await story_engine.continue_story(run_id)
+            if result:
+                text, keyboard, _ = result
+                await callback.message.edit_reply_markup(reply_markup=None)
+                await callback.message.edit_text(text, reply_markup=keyboard)
+            return
+        
+        # Обрабатываем выбор
+        result = await story_engine.process_choice(run_id, scene_id, choice_id)
+        
+        if result is None:
+            await callback.message.edit_reply_markup(reply_markup=None)
+            await callback.message.answer("❌ Ошибка обработки выбора (возможно, условие не выполнено).")
+            return
+        
+        text, keyboard, new_run_id = result
+        
+        # ВСЕГДА убираем кнопки у сообщения сцены
+        await callback.message.edit_reply_markup(reply_markup=None)
+        
+        # Проверяем, это финал?
+        run_after = await RunRepository._get_run_by_id(new_run_id)
+        is_finished = run_after and run_after.is_finished
+        
+        if is_finished:
+            # Это финал - отправляем НОВОЕ сообщение
+            from utils.ui_texts import get_ending_header, get_ending_keyboard
+            
+            story = story_engine.get_story(run_after.story_id)
+            if story:
+                endings = story.get("endings", {})
+                ending = endings.get(run_after.current_scene, {})
+                ending_type = ending.get("ending_type", "neutral")
+                
+                header = get_ending_header(ending_type)
+                allow_restart = story.get("allow_restart", False)
+                
+                formatted_text = f"{header}\n\n{text}"
+                ending_keyboard = get_ending_keyboard(run_after.story_id, allow_restart)
+            else:
+                # История не найдена, но финал есть
+                formatted_text = f"🏁 Финал\n\n{text}"
+                ending_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+                    [InlineKeyboardButton(text="📚 Другие истории", callback_data="show_stories:0")],
+                    [InlineKeyboardButton(text="🏠 Меню", callback_data="service_menu")]
+                ])
+            
+            # Отправляем новое сообщение с финалом и сворачиваем ReplyKeyboard
+            await callback.message.answer(
+                formatted_text,
+                reply_markup=ending_keyboard
+            )
+        else:
+            # Обычная сцена - обновляем сообщение БЕЗ сервисных кнопок
+            await callback.message.edit_text(text, reply_markup=keyboard)
+        
+        logger.info(f"Пользователь {user_id} сделал выбор {choice_id} в сцене {scene_id} (run_id: {new_run_id})")
+    
+    except Exception as e:
+        logger.error(f"Ошибка при обработке выбора: {e}", exc_info=True)
+        await callback.message.edit_reply_markup(reply_markup=None)
+        await callback.message.answer("❌ Произошла ошибка. Попробуй выбрать другую историю.")
 
 async def on_startup():
     """Действия при запуске бота"""
