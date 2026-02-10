@@ -1,0 +1,19 @@
+[Unit]
+Description=Story Quest Telegram Bot
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/apps/story-quest-bot
+EnvironmentFile=/root/apps/story-quest-bot/.env
+ExecStart=/root/apps/story-quest-bot/.venv/bin/python /root/apps/story-quest-bot/bot.py
+Restart=always
+RestartSec=3
+
+# Логи в journalctl
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

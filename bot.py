@@ -3,7 +3,7 @@
 """
 import asyncio
 from aiogram import Bot, Dispatcher, F
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery, Message, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
@@ -167,20 +167,48 @@ async def process_choice(callback: CallbackQuery):
         await callback.answer("❌ Ошибка обработки выбора (возможно, условие не выполнено)", show_alert=True)
         return
     
-    text, keyboard, run_id = result
+    text, keyboard, new_run_id = result
     
-    # Если история завершена (keyboard is None), добавляем кнопку возврата в меню
-    if keyboard is None:
-        from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-        keyboard = InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="📚 Выбрать другую историю", callback_data="show_stories")]
-        ])
+    # Проверяем, это финал?
+    run_after = await RunRepository._get_run_by_id(new_run_id)
+    is_finished = run_after and run_after.is_finished
     
-    # Удаляем кнопки и обновляем сообщение
-    await callback.message.edit_text(text, reply_markup=keyboard)
+    if is_finished:
+        # Это финал - оформляем красиво
+        from utils.ui_texts import get_ending_header, get_ending_keyboard
+        
+        story = story_engine.get_story(run_after.story_id)
+        if story:
+            endings = story.get("endings", {})
+            ending = endings.get(run_after.current_scene, {})
+            ending_type = ending.get("ending_type", "neutral")
+            
+            header = get_ending_header(ending_type)
+            allow_restart = story.get("allow_restart", False)
+            
+            formatted_text = f"{header}\n\n{text}"
+            keyboard = get_ending_keyboard(run_after.story_id, allow_restart)
+        else:
+            # История не найдена, но финал есть
+            formatted_text = f"🏁 Финал\n\n{text}"
+            keyboard = InlineKeyboardMarkup(inline_keyboard=[
+                [InlineKeyboardButton(text="📚 Другие истории", callback_data="show_stories:0")],
+                [InlineKeyboardButton(text="🏠 Меню", callback_data="service_menu")]
+            ])
+    else:
+        # Обычная сцена - добавляем сервисные кнопки
+        from handlers.menu import get_service_buttons
+        if keyboard:
+            service_buttons = get_service_buttons(new_run_id, run_after.current_scene if run_after else scene_id)
+            keyboard.inline_keyboard.extend(service_buttons)
+        formatted_text = text
+    
+    # Удаляем старую клавиатуру и обновляем сообщение
+    await callback.message.edit_reply_markup(reply_markup=None)
+    await callback.message.edit_text(formatted_text, reply_markup=keyboard)
     await callback.answer()
     
-    logger.info(f"Пользователь {user_id} сделал выбор {choice_id} в сцене {scene_id} (run_id: {run_id})")
+    logger.info(f"Пользователь {user_id} сделал выбор {choice_id} в сцене {scene_id} (run_id: {new_run_id})")
 
 async def on_startup():
     """Действия при запуске бота"""
