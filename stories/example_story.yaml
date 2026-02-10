@@ -1,0 +1,1172 @@
+id: detective_case_01
+title: "Голос в тишине"
+description: "Реалистичный детектив с элементами мистики"
+version: 1.0
+start_scene: intro
+allow_restart: true
+
+scenes:
+  intro:
+    text: |
+      Телефон вибрирует в кармане.
+      Сообщение приходит с неизвестного номера.
+      
+      Ты стоишь на пустынной улице, и только уличные фонари освещают твою дорогу домой.
+    choices:
+      - id: inspect_message
+        text: "Перечитать сообщение"
+        next_scene: analyze_message
+        effects:
+          - add_flag: curiosity
+
+      - id: ignore_message
+        text: "Проигнорировать"
+        next_scene: walk_away
+
+  analyze_message:
+    text: |
+      В тексте есть странный символ.
+      Что-то вроде перевёрнутого треугольника.
+      
+      Сообщение гласит: "Они знают. Беги."
+    choices:
+      - id: remember_symbol
+        text: "Запомнить символ"
+        next_scene: next_step
+        effects:
+          - add_flag: saw_symbol
+
+      - id: delete_message
+        text: "Удалить сообщение"
+        next_scene: walk_away
+        effects:
+          - add_flag: ignored_warning
+
+  next_step:
+    text: |
+      Ты запомнил символ и продолжил путь.
+      
+      Впереди виднеется твоя квартира. Окна тёмные.
+    choices:
+      - id: go_home
+        text: "Пойти домой"
+        next_scene: home_scene
+        conditions:
+          - has_flag: saw_symbol
+
+      - id: call_police
+        text: "Позвонить в полицию"
+        next_scene: police_scene
+
+  walk_away:
+    text: |
+      Ты решил проигнорировать сообщение и продолжил путь.
+      
+      Но что-то не даёт покоя. Ощущение, что за тобой следят.
+    choices:
+      - id: look_back
+        text: "Оглянуться"
+        next_scene: look_back_scene
+
+      - id: hurry_home
+        text: "Ускорить шаг"
+        next_scene: hurry_scene
+
+  home_scene:
+    text: |
+      Ты вошёл в квартиру. Всё выглядит нормально.
+      
+      Но на столе лежит записка с тем же символом.
+    choices:
+      - id: read_note
+        text: "Прочитать записку"
+        next_scene: note_scene
+
+      - id: call_friend
+        text: "Позвонить другу"
+        next_scene: friend_scene
+
+  police_scene:
+    text: |
+      Полиция выслушала тебя, но не восприняла всерьёз.
+      
+      "Скорее всего, это чья-то шутка," — сказал дежурный.
+    choices:
+      - id: insist
+        text: "Настаивать на расследовании"
+        next_scene: police_insist
+
+      - id: leave
+        text: "Уйти"
+        next_scene: walk_away
+
+  look_back_scene:
+    text: |
+      Ты обернулся. Улица пуста.
+      
+      Но в темноте мелькнула тень. Кто-то действительно следил.
+    choices:
+      - id: run
+        text: "Бежать"
+        next_scene: run_scene
+
+      - id: confront
+        text: "Подойти к тени"
+        next_scene: confront_scene
+
+  hurry_scene:
+    text: |
+      Ты ускорил шаг и быстро дошёл до дома.
+      
+      Дверь квартиры приоткрыта. Ты точно помнишь, что закрывал её.
+    choices:
+      - id: enter_carefully
+        text: "Осторожно войти"
+        next_scene: enter_scene
+
+      - id: call_police_now
+        text: "Сразу вызвать полицию"
+        next_scene: police_scene
+
+  note_scene:
+    text: |
+      Записка гласит: "Ты уже слишком много знаешь. Это твой последний шанс."
+      
+      Символ на записке начинает светиться.
+    choices:
+      - id: touch_symbol
+        text: "Прикоснуться к символу"
+        next_scene: truth_revealed
+
+      - id: burn_note
+        text: "Сжечь записку"
+        next_scene: burned_ending
+
+  friend_scene:
+    text: |
+      Друг не отвечает. Странно, он всегда на связи.
+      
+      В трубке только тишина и странные звуки.
+    choices:
+      - id: hang_up
+        text: "Положить трубку"
+        next_scene: hang_up_scene
+
+      - id: keep_listening
+        text: "Продолжить слушать"
+        next_scene: listening_scene
+
+  police_insist:
+    text: |
+      Твоя настойчивость заставила полицию отправить патруль.
+      
+      Но когда они приехали, в квартире никого не было.
+    choices:
+      - id: investigate
+        text: "Помочь в расследовании"
+        next_scene: investigation_scene
+
+      - id: give_up
+        text: "Сдаться"
+        next_scene: give_up_ending
+
+  run_scene:
+    text: |
+      Ты побежал. Ноги несут тебя вперёд.
+      
+      За спиной слышны шаги. Они приближаются.
+    choices:
+      - id: keep_running
+        text: "Продолжать бежать"
+        next_scene: escape_ending
+
+      - id: hide
+        text: "Спрятаться"
+        next_scene: hide_scene
+
+  confront_scene:
+    text: |
+      Ты подошёл к тени. Она оказалась просто силуэтом от фонаря.
+      
+      Но ощущение опасности не проходит.
+    choices:
+      - id: go_home_now
+        text: "Идти домой"
+        next_scene: home_scene
+
+      - id: stay_alert
+        text: "Остаться настороже"
+        next_scene: alert_scene
+
+  enter_scene:
+    text: |
+      Ты осторожно вошёл в квартиру.
+      
+      Всё выглядит нормально, но что-то не так. Ощущение, что здесь кто-то был.
+    choices:
+      - id: search_apartment
+        text: "Обыскать квартиру"
+        next_scene: search_scene
+
+      - id: leave_immediately
+        text: "Немедленно уйти"
+        next_scene: leave_ending
+
+  hang_up_scene:
+    text: |
+      Ты положил трубку, но странное чувство не покидает.
+      
+      Что-то определённо не так.
+    choices:
+      - id: check_friend
+        text: "Проверить друга"
+        next_scene: check_friend_scene
+
+      - id: wait
+        text: "Подождать"
+        next_scene: wait_scene
+
+  listening_scene:
+    text: |
+      В трубке слышны странные звуки. Похоже на шёпот на неизвестном языке.
+      
+      Внезапно голос произносит твоё имя.
+    choices:
+      - id: answer
+        text: "Ответить"
+        next_scene: answer_scene
+
+      - id: drop_phone
+        text: "Бросить телефон"
+        next_scene: drop_phone_scene
+
+  investigation_scene:
+    text: |
+      Вместе с полицией ты начал расследование.
+      
+      Постепенно открывается страшная правда о том, что происходит в городе.
+    choices:
+      - id: continue_investigation
+        text: "Продолжить расследование"
+        next_scene: truth_revealed
+
+  hide_scene:
+    text: |
+      Ты спрятался в подъезде соседнего дома.
+      
+      Шаги прошли мимо. Ты в безопасности. Пока что.
+    choices:
+      - id: go_home_safely
+        text: "Осторожно идти домой"
+        next_scene: home_scene
+
+      - id: stay_hidden
+        text: "Остаться в укрытии"
+        next_scene: stay_hidden_scene
+
+  alert_scene:
+    text: |
+      Ты остался настороже и заметил движение в окне своей квартиры.
+      
+      Кто-то действительно был внутри.
+    choices:
+      - id: call_police_alert
+        text: "Вызвать полицию"
+        next_scene: police_scene
+
+      - id: enter_stealth
+        text: "Тихо войти"
+        next_scene: stealth_scene
+
+  search_scene:
+    text: |
+      Ты обыскал квартиру и нашёл скрытую камеру.
+      
+      За тобой действительно следили.
+    choices:
+      - id: destroy_camera
+        text: "Уничтожить камеру"
+        next_scene: destroy_camera_scene
+
+      - id: leave_camera
+        text: "Оставить камеру"
+        next_scene: leave_camera_scene
+
+  check_friend_scene:
+    text: |
+      Ты поехал к другу. Его квартира пуста.
+      
+      На столе лежит записка с тем же символом.
+    choices:
+      - id: read_friend_note
+        text: "Прочитать записку"
+        next_scene: friend_note_scene
+
+      - id: call_police_friend
+        text: "Вызвать полицию"
+        next_scene: police_scene
+
+  wait_scene:
+    text: |
+      Ты решил подождать. Время тянется медленно.
+      
+      Внезапно раздаётся стук в дверь.
+    choices:
+      - id: open_door
+        text: "Открыть дверь"
+        next_scene: open_door_scene
+
+      - id: ignore_knock
+        text: "Игнорировать стук"
+        next_scene: ignore_knock_scene
+
+  answer_scene:
+    text: |
+      Ты ответил. Голос в трубке произнёс: "Они идут за тобой. Беги."
+      
+      Затем связь оборвалась.
+    choices:
+      - id: run_from_phone
+        text: "Бежать"
+        next_scene: run_scene
+
+      - id: stay_calm
+        text: "Сохранять спокойствие"
+        next_scene: calm_scene
+
+  drop_phone_scene:
+    text: |
+      Ты бросил телефон. Он разбился.
+      
+      Но странное чувство не покидает. Что-то определённо не так.
+    choices:
+      - id: leave_apartment
+        text: "Покинуть квартиру"
+        next_scene: leave_ending
+
+      - id: stay_and_think
+        text: "Остаться и подумать"
+        next_scene: think_scene
+
+  stay_hidden_scene:
+    text: |
+      Ты остался в укрытии до утра.
+      
+      Утром всё выглядело нормально. Но ты знаешь, что это только начало.
+    choices:
+      - id: investigate_morning
+        text: "Начать расследование"
+        next_scene: investigation_scene
+
+      - id: forget_everything
+        text: "Попытаться забыть"
+        next_scene: forget_ending
+
+  stealth_scene:
+    text: |
+      Ты тихо вошёл в квартиру.
+      
+      Внутри никого нет, но на столе лежит та же записка с символом.
+    choices:
+      - id: read_stealth_note
+        text: "Прочитать записку"
+        next_scene: note_scene
+
+      - id: leave_stealth
+        text: "Уйти"
+        next_scene: leave_ending
+
+  destroy_camera_scene:
+    text: |
+      Ты уничтожил камеру.
+      
+      Но теперь они точно знают, что ты знаешь о слежке.
+    choices:
+      - id: prepare_defense
+        text: "Подготовиться к защите"
+        next_scene: defense_scene
+
+      - id: run_away
+        text: "Бежать"
+        next_scene: run_scene
+
+  leave_camera_scene:
+    text: |
+      Ты оставил камеру на месте.
+      
+      Теперь ты можешь наблюдать за наблюдающими.
+    choices:
+      - id: set_trap
+        text: "Устроить ловушку"
+        next_scene: trap_scene
+
+      - id: wait_and_watch
+        text: "Ждать и наблюдать"
+        next_scene: watch_scene
+
+  friend_note_scene:
+    text: |
+      Записка гласит: "Они забрали его. Ты следующий."
+      
+      Символ на записке начинает светиться ярче.
+    choices:
+      - id: touch_friend_symbol
+        text: "Прикоснуться к символу"
+        next_scene: truth_revealed
+
+      - id: burn_friend_note
+        text: "Сжечь записку"
+        next_scene: burned_ending
+
+  open_door_scene:
+    text: |
+      Ты открыл дверь. На пороге никого нет.
+      
+      Но на полу лежит конверт с тем же символом.
+    choices:
+      - id: pick_envelope
+        text: "Поднять конверт"
+        next_scene: envelope_scene
+
+      - id: close_door
+        text: "Закрыть дверь"
+        next_scene: close_door_scene
+
+  ignore_knock_scene:
+    text: |
+      Ты проигнорировал стук. Он прекратился.
+      
+      Но ощущение опасности усиливается.
+    choices:
+      - id: check_window
+        text: "Проверить окно"
+        next_scene: window_scene
+
+      - id: stay_inside
+        text: "Остаться внутри"
+        next_scene: stay_inside_scene
+
+  calm_scene:
+    text: |
+      Ты сохранил спокойствие и попытался разобраться в ситуации.
+      
+      Но чем больше ты думаешь, тем страшнее становится.
+    choices:
+      - id: investigate_calm
+        text: "Начать расследование"
+        next_scene: investigation_scene
+
+      - id: ignore_everything
+        text: "Игнорировать всё"
+        next_scene: ignore_ending
+
+  think_scene:
+    text: |
+      Ты сел и начал думать. Всё началось с того сообщения.
+      
+      Постепенно картина проясняется.
+    choices:
+      - id: understand_truth
+        text: "Понять правду"
+        next_scene: truth_revealed
+
+      - id: reject_truth
+        text: "Отвергнуть правду"
+        next_scene: reject_ending
+
+  defense_scene:
+    text: |
+      Ты начал готовиться к защите.
+      
+      Но понимаешь, что против них обычная защита бесполезна.
+    choices:
+      - id: find_weakness
+        text: "Найти слабость"
+        next_scene: weakness_scene
+
+      - id: accept_fate
+        text: "Принять судьбу"
+        next_scene: accept_ending
+
+  trap_scene:
+    text: |
+      Ты устроил ловушку и ждёшь.
+      
+      Ночь проходит медленно, но никто не приходит.
+    choices:
+      - id: wait_longer
+        text: "Ждать дольше"
+        next_scene: wait_longer_scene
+
+      - id: give_up_trap
+        text: "Сдаться"
+        next_scene: give_up_ending
+
+  watch_scene:
+    text: |
+      Ты наблюдаешь за камерой.
+      
+      Внезапно на экране появляется лицо. Оно смотрит прямо на тебя.
+    choices:
+      - id: destroy_screen
+        text: "Уничтожить экран"
+        next_scene: destroy_screen_scene
+
+      - id: keep_watching
+        text: "Продолжить смотреть"
+        next_scene: watching_ending
+
+  envelope_scene:
+    text: |
+      Ты поднял конверт. Внутри записка с символом.
+      
+      "Ты уже слишком близко. Остановись, пока не поздно."
+    choices:
+      - id: read_envelope
+        text: "Прочитать полностью"
+        next_scene: envelope_read_scene
+
+      - id: burn_envelope
+        text: "Сжечь конверт"
+        next_scene: burned_ending
+
+  close_door_scene:
+    text: |
+      Ты закрыл дверь и запер её.
+      
+      Но понимаешь, что замок не спасёт от того, что идёт.
+    choices:
+      - id: barricade
+        text: "Забаррикадировать дверь"
+        next_scene: barricade_scene
+
+      - id: escape_window
+        text: "Убежать через окно"
+        next_scene: escape_ending
+
+  window_scene:
+    text: |
+      Ты подошёл к окну. Снаружи темно.
+      
+      Но в темноте видны огоньки. Много огоньков. Они движутся.
+    choices:
+      - id: hide_from_lights
+        text: "Спрятаться от огоньков"
+        next_scene: hide_from_lights_scene
+
+      - id: watch_lights
+        text: "Наблюдать за огоньками"
+        next_scene: watch_lights_scene
+
+  stay_inside_scene:
+    text: |
+      Ты остался внутри и ждёшь.
+      
+      Время тянется. Ничего не происходит.
+    choices:
+      - id: wait_more
+        text: "Ждать ещё"
+        next_scene: wait_more_scene
+
+      - id: check_again
+        text: "Проверить снова"
+        next_scene: check_again_scene
+
+  weakness_scene:
+    text: |
+      Ты ищешь слабость и находишь её.
+      
+      Символ. Он не только предупреждение, но и ключ.
+    choices:
+      - id: use_symbol
+        text: "Использовать символ"
+        next_scene: truth_revealed
+
+      - id: destroy_symbol
+        text: "Уничтожить символ"
+        next_scene: destroy_symbol_ending
+
+  wait_longer_scene:
+    text: |
+      Ты ждёшь дольше. Рассвет приближается.
+      
+      Внезапно дверь открывается. Но это не они.
+    choices:
+      - id: greet_visitor
+        text: "Поприветствовать посетителя"
+        next_scene: visitor_scene
+
+      - id: attack_visitor
+        text: "Атаковать посетителя"
+        next_scene: attack_scene
+
+  destroy_screen_scene:
+    text: |
+      Ты уничтожил экран, но образ лица остаётся в памяти.
+      
+      Ты знаешь, что они знают о тебе всё.
+    choices:
+      - id: run_from_memory
+        text: "Бежать от воспоминаний"
+        next_scene: run_scene
+
+      - id: face_memory
+        text: "Встретиться с воспоминанием"
+        next_scene: memory_scene
+
+  envelope_read_scene:
+    text: |
+      Ты прочитал записку полностью.
+      
+      "Они придут за тобой на рассвете. У тебя есть выбор: бежать или встретить их."
+    choices:
+      - id: prepare_dawn
+        text: "Подготовиться к рассвету"
+        next_scene: dawn_scene
+
+      - id: run_before_dawn
+        text: "Бежать до рассвета"
+        next_scene: escape_ending
+
+  barricade_scene:
+    text: |
+      Ты забаррикадировал дверь.
+      
+      Но понимаешь, что физические преграды бессмысленны.
+    choices:
+      - id: wait_barricade
+        text: "Ждать за баррикадой"
+        next_scene: wait_barricade_scene
+
+      - id: remove_barricade
+        text: "Убрать баррикаду"
+        next_scene: remove_barricade_scene
+
+  hide_from_lights_scene:
+    text: |
+      Ты спрятался от огоньков.
+      
+      Они прошли мимо, но ты знаешь, что они вернутся.
+    choices:
+      - id: stay_hidden_lights
+        text: "Остаться в укрытии"
+        next_scene: stay_hidden_scene
+
+      - id: follow_lights
+        text: "Проследить за огоньками"
+        next_scene: follow_lights_scene
+
+  watch_lights_scene:
+    text: |
+      Ты наблюдаешь за огоньками.
+      
+      Они приближаются. Становится ясно, что это не просто огоньки.
+    choices:
+      - id: prepare_meeting
+        text: "Подготовиться к встрече"
+        next_scene: meeting_scene
+
+      - id: hide_now
+        text: "Спрятаться сейчас"
+        next_scene: hide_from_lights_scene
+
+  wait_more_scene:
+    text: |
+      Ты ждёшь ещё. Рассвет уже близко.
+      
+      Внезапно всё становится ясно.
+    choices:
+      - id: understand_dawn
+        text: "Понять на рассвете"
+        next_scene: truth_revealed
+
+      - id: reject_dawn
+        text: "Отвергнуть рассвет"
+        next_scene: reject_ending
+
+  check_again_scene:
+    text: |
+      Ты проверил снова. Всё на месте.
+      
+      Но ощущение, что что-то изменилось, не покидает.
+    choices:
+      - id: notice_change
+        text: "Заметить изменение"
+        next_scene: change_scene
+
+      - id: ignore_change
+        text: "Игнорировать изменение"
+        next_scene: ignore_ending
+
+  visitor_scene:
+    text: |
+      Посетитель оказывается старым другом.
+      
+      Он пришёл предупредить тебя. "Они идут. Тебе нужно бежать."
+    choices:
+      - id: trust_friend
+        text: "Довериться другу"
+        next_scene: friend_trust_scene
+
+      - id: doubt_friend
+        text: "Усомниться в друге"
+        next_scene: doubt_friend_scene
+
+  attack_scene:
+    text: |
+      Ты атаковал посетителя.
+      
+      Но это была ошибка. Он был здесь, чтобы помочь.
+    choices:
+      - id: apologize
+        text: "Извиниться"
+        next_scene: apologize_scene
+
+      - id: continue_attack
+        text: "Продолжить атаку"
+        next_scene: attack_ending
+
+  memory_scene:
+    text: |
+      Ты встретился с воспоминанием о лице.
+      
+      Оно начинает говорить. Голос знакомый, но ты не можешь вспомнить, чей.
+    choices:
+      - id: remember_voice
+        text: "Вспомнить голос"
+        next_scene: voice_scene
+
+      - id: forget_voice
+        text: "Забыть голос"
+        next_scene: forget_ending
+
+  dawn_scene:
+    text: |
+      Рассвет приближается. Ты подготовился.
+      
+      Но когда они приходят, всё оказывается не так, как ты ожидал.
+    choices:
+      - id: meet_them
+        text: "Встретить их"
+        next_scene: meet_ending
+
+      - id: run_dawn
+        text: "Бежать на рассвете"
+        next_scene: escape_ending
+
+  wait_barricade_scene:
+    text: |
+      Ты ждёшь за баррикадой.
+      
+      Но они не приходят через дверь. Они уже внутри.
+    choices:
+      - id: turn_around
+        text: "Обернуться"
+        next_scene: turn_around_scene
+
+      - id: stay_frozen
+        text: "Остаться замершим"
+        next_scene: frozen_ending
+
+  remove_barricade_scene:
+    text: |
+      Ты убрал баррикаду и открыл дверь.
+      
+      Снаружи никого нет. Только утренний туман.
+    choices:
+      - id: step_outside
+        text: "Выйти наружу"
+        next_scene: outside_scene
+
+      - id: close_again
+        text: "Закрыть снова"
+        next_scene: close_door_scene
+
+  follow_lights_scene:
+    text: |
+      Ты проследил за огоньками.
+      
+      Они привели тебя к старому зданию на окраине города.
+    choices:
+      - id: enter_building
+        text: "Войти в здание"
+        next_scene: building_scene
+
+      - id: observe_building
+        text: "Наблюдать за зданием"
+        next_scene: observe_scene
+
+  meeting_scene:
+    text: |
+      Ты подготовился к встрече.
+      
+      Огоньки приближаются и останавливаются перед тобой.
+    choices:
+      - id: speak_to_lights
+        text: "Заговорить с огоньками"
+        next_scene: speak_scene
+
+      - id: run_from_lights
+        text: "Бежать от огоньков"
+        next_scene: run_scene
+
+  change_scene:
+    text: |
+      Ты заметил изменение. На стене появился символ.
+      
+      Он светится мягким светом.
+    choices:
+      - id: touch_wall_symbol
+        text: "Прикоснуться к символу на стене"
+        next_scene: truth_revealed
+
+      - id: ignore_wall_symbol
+        text: "Игнорировать символ"
+        next_scene: ignore_ending
+
+  friend_trust_scene:
+    text: |
+      Ты доверился другу и последовал за ним.
+      
+      Он приводит тебя к месту, где можно узнать правду.
+    choices:
+      - id: learn_truth
+        text: "Узнать правду"
+        next_scene: truth_revealed
+
+      - id: doubt_place
+        text: "Усомниться в месте"
+        next_scene: doubt_place_scene
+
+  doubt_friend_scene:
+    text: |
+      Ты усомнился в друге.
+      
+      Он понимает твоё недоверие и уходит. Ты остаёшься один.
+    choices:
+      - id: regret_doubt
+        text: "Пожалеть о сомнениях"
+        next_scene: regret_scene
+
+      - id: stay_alone
+        text: "Остаться одному"
+        next_scene: alone_scene
+
+  apologize_scene:
+    text: |
+      Ты извинился. Посетитель прощает тебя.
+      
+      "Я понимаю твой страх," — говорит он. "Но тебе нужно знать правду."
+    choices:
+      - id: hear_truth
+        text: "Услышать правду"
+        next_scene: truth_revealed
+
+      - id: reject_truth_apology
+        text: "Отвергнуть правду"
+        next_scene: reject_ending
+
+  voice_scene:
+    text: |
+      Ты вспоминаешь голос. Это голос того, кого ты знал.
+      
+      Но это невозможно. Он давно мёртв.
+    choices:
+      - id: accept_impossible
+        text: "Принять невозможное"
+        next_scene: impossible_scene
+
+      - id: reject_impossible
+        text: "Отвергнуть невозможное"
+        next_scene: reject_ending
+
+  outside_scene:
+    text: |
+      Ты вышел наружу. Туман рассеивается.
+      
+      Город выглядит нормально. Но ты знаешь, что это иллюзия.
+    choices:
+      - id: see_through_illusion
+        text: "Увидеть сквозь иллюзию"
+        next_scene: truth_revealed
+
+      - id: accept_illusion
+        text: "Принять иллюзию"
+        next_scene: illusion_ending
+
+  building_scene:
+    text: |
+      Ты вошёл в здание. Внутри пусто и темно.
+      
+      Но на стене виден тот же символ. Он светится.
+    choices:
+      - id: touch_building_symbol
+        text: "Прикоснуться к символу"
+        next_scene: truth_revealed
+
+      - id: leave_building
+        text: "Покинуть здание"
+        next_scene: leave_ending
+
+  observe_scene:
+    text: |
+      Ты наблюдаешь за зданием.
+      
+      Внезапно в окнах появляется свет. Кто-то внутри.
+    choices:
+      - id: enter_observed
+        text: "Войти"
+        next_scene: building_scene
+
+      - id: keep_observing
+        text: "Продолжить наблюдение"
+        next_scene: keep_observing_scene
+
+  speak_scene:
+    text: |
+      Ты заговорил с огоньками.
+      
+      Они отвечают. Голос знакомый. "Ты наконец-то готов узнать правду."
+    choices:
+      - id: hear_final_truth
+        text: "Услышать финальную правду"
+        next_scene: truth_revealed
+
+      - id: run_from_truth
+        text: "Бежать от правды"
+        next_scene: run_scene
+
+  doubt_place_scene:
+    text: |
+      Ты усомнился в месте.
+      
+      Друг понимает твоё недоверие. "Хорошо, — говорит он. — Тогда иди один."
+    choices:
+      - id: go_alone
+        text: "Идти одному"
+        next_scene: alone_scene
+
+      - id: trust_after_all
+        text: "Всё же довериться"
+        next_scene: truth_revealed
+
+  regret_scene:
+    text: |
+      Ты пожалел о сомнениях, но друг уже ушёл.
+      
+      Ты остаёшься один с правдой, которую должен узнать сам.
+    choices:
+      - id: find_truth_alone
+        text: "Найти правду самому"
+        next_scene: truth_revealed
+
+      - id: give_up_regret
+        text: "Сдаться"
+        next_scene: give_up_ending
+
+  alone_scene:
+    text: |
+      Ты остаёшься один.
+      
+      Но одиночество даёт ясность. Ты начинаешь понимать.
+    choices:
+      - id: understand_alone
+        text: "Понять в одиночестве"
+        next_scene: truth_revealed
+
+      - id: stay_confused
+        text: "Остаться в замешательстве"
+        next_scene: confused_ending
+
+  impossible_scene:
+    text: |
+      Ты принял невозможное.
+      
+      Мёртвые могут говорить. И они хотят, чтобы ты узнал правду.
+    choices:
+      - id: hear_dead_truth
+        text: "Услышать правду мёртвых"
+        next_scene: truth_revealed
+
+      - id: reject_dead
+        text: "Отвергнуть мёртвых"
+        next_scene: reject_ending
+
+  turn_around_scene:
+    text: |
+      Ты обернулся. Они стоят за тобой.
+      
+      Но они не враги. Они пришли помочь тебе понять.
+    choices:
+      - id: accept_help
+        text: "Принять помощь"
+        next_scene: truth_revealed
+
+      - id: reject_help
+        text: "Отвергнуть помощь"
+        next_scene: reject_ending
+
+  keep_observing_scene:
+    text: |
+      Ты продолжаешь наблюдать.
+      
+      Свет в окнах гаснет. Здание снова пусто.
+    choices:
+      - id: enter_after_light
+        text: "Войти после света"
+        next_scene: building_scene
+
+      - id: leave_observing
+        text: "Уйти"
+        next_scene: leave_ending
+
+endings:
+  truth_revealed:
+    text: |
+      Ты узнал правду.
+      
+      Мир, в котором ты живёшь, — это не то, чем кажется. За реальностью скрывается другая реальность, полная тайн и опасностей.
+      
+      Символ, который ты видел, — это ключ. Ключ к пониманию того, что происходит вокруг.
+      
+      Но мир оказался не готов услышать эту правду. Ты один из немногих, кто знает.
+      
+      Что ты будешь делать с этим знанием? Это уже другая история.
+    ending_type: success
+
+  burned_ending:
+    text: |
+      Ты сжёг записку, пытаясь избавиться от символа.
+      
+      Но огонь не уничтожил его. Символ остался, выжженный в твоей памяти.
+      
+      Ты понимаешь, что от правды не убежишь. Она найдёт тебя снова.
+    ending_type: neutral
+
+  leave_ending:
+    text: |
+      Ты решил уйти и забыть обо всём.
+      
+      Но правда не забывается. Она будет преследовать тебя, пока ты не встретишься с ней лицом к лицу.
+      
+      Это только начало.
+    ending_type: neutral
+
+  escape_ending:
+    text: |
+      Ты сбежал. Убежал далеко от города, от всего, что знал.
+      
+      Но куда бы ты ни пошёл, символ следует за тобой. В снах, в воспоминаниях, в случайных узорах.
+      
+      Правда не отпускает. Никогда.
+    ending_type: neutral
+
+  give_up_ending:
+    text: |
+      Ты сдался. Перестал бороться, перестал искать ответы.
+      
+      Жизнь вернулась в обычное русло. Всё выглядит нормально.
+      
+      Но глубоко внутри ты знаешь, что это только видимость. Правда ждёт своего часа.
+    ending_type: neutral
+
+  ignore_ending:
+    text: |
+      Ты решил игнорировать всё происходящее.
+      
+      Жизнь продолжается как обычно. Работа, дом, обычные заботы.
+      
+      Но иногда, в тишине ночи, ты слышишь шёпот. И видишь символ в темноте.
+      
+      Игнорирование не избавляет от правды. Оно только откладывает встречу с ней.
+    ending_type: neutral
+
+  reject_ending:
+    text: |
+      Ты отверг правду. Отказался верить в то, что видел и слышал.
+      
+      Разум нашёл логические объяснения всему. Странные совпадения, галлюцинации, усталость.
+      
+      Но сердце знает другое. И однажды сердце заговорит громче разума.
+    ending_type: neutral
+
+  forget_ending:
+    text: |
+      Ты попытался забыть. Вытеснить из памяти всё странное и необъяснимое.
+      
+      Время лечит. Время стирает воспоминания.
+      
+      Но некоторые вещи нельзя забыть. Они становятся частью тебя, даже если ты не помнишь их.
+    ending_type: neutral
+
+  attack_ending:
+    text: |
+      Ты продолжил атаку, не понимая, что делаешь ошибку.
+      
+      Страх ослепил тебя. Ты напал на того, кто пришёл помочь.
+      
+      Теперь ты один. И правда остаётся скрытой.
+    ending_type: failure
+
+  watching_ending:
+    text: |
+      Ты продолжал смотреть на лицо на экране.
+      
+      Оно начало говорить. Голос проникал в разум, заполняя его странными мыслями.
+      
+      Ты не смог оторваться. И теперь не знаешь, где заканчиваешься ты и начинается оно.
+    ending_type: failure
+
+  destroy_symbol_ending:
+    text: |
+      Ты уничтожил символ, думая, что это избавит тебя от всего.
+      
+      Но уничтожение символа не уничтожает правду. Оно только делает её недоступной.
+      
+      Теперь ты никогда не узнаешь, что происходило на самом деле.
+    ending_type: failure
+
+  frozen_ending:
+    text: |
+      Ты остался замершим, не в силах пошевелиться.
+      
+      Они подошли ближе. Ты чувствуешь их присутствие, но не можешь ничего сделать.
+      
+      Время останавливается. Ты застрял между мирами, не в силах двигаться вперёд или назад.
+    ending_type: failure
+
+  illusion_ending:
+    text: |
+      Ты принял иллюзию за реальность.
+      
+      Город выглядит нормально. Жизнь продолжается. Всё хорошо.
+      
+      Но это только поверхность. Под ней скрывается правда, которую ты выбрал не видеть.
+    ending_type: neutral
+
+  confused_ending:
+    text: |
+      Ты остался в замешательстве, не в силах понять, что происходит.
+      
+      Вопросы остаются без ответов. Загадки без разгадок.
+      
+      Возможно, однажды ясность придёт. Но не сегодня.
+    ending_type: neutral
+
+  meet_ending:
+    text: |
+      Ты встретил их на рассвете.
+      
+      Они оказались не врагами, а проводниками. Теми, кто помогает понять правду тем, кто готов её принять.
+      
+      Рассвет принёс не только свет, но и понимание.
+    ending_type: success
+
+  attack_visitor_ending:
+    text: |
+      Ты атаковал посетителя, не дав ему шанса объясниться.
+      
+      Страх и паранойя взяли верх над разумом.
+      
+      Теперь ты один, и правда остаётся скрытой от тебя.
+    ending_type: failure
