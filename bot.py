@@ -181,37 +181,47 @@ async def process_choice(callback: CallbackQuery):
         await callback.message.edit_reply_markup(reply_markup=None)
         
         # Проверяем, это финал?
-        run_after = await RunRepository._get_run_by_id(new_run_id)
-        is_finished = run_after and run_after.is_finished
-        
-        if is_finished:
+        # Финал определяется по keyboard=None (возвращается из _render_ending)
+        if keyboard is None:
             # Это финал - отправляем НОВОЕ сообщение
             from utils.ui_texts import get_ending_header, get_ending_keyboard
             
-            story = story_engine.get_story(run_after.story_id)
-            if story:
-                endings = story.get("endings", {})
-                ending = endings.get(run_after.current_scene, {})
-                ending_type = ending.get("ending_type", "neutral")
-                
-                header = get_ending_header(ending_type)
-                allow_restart = story.get("allow_restart", False)
-                
-                formatted_text = f"{header}\n\n{text}"
-                ending_keyboard = get_ending_keyboard(run_after.story_id, allow_restart)
+            # Получаем актуальные данные run после завершения
+            run_after = await RunRepository._get_run_by_id(new_run_id)
+            
+            if run_after:
+                story = story_engine.get_story(run_after.story_id)
+                if story:
+                    endings = story.get("endings", {})
+                    ending = endings.get(run_after.current_scene, {})
+                    ending_type = ending.get("ending_type", "neutral")
+                    
+                    header = get_ending_header(ending_type)
+                    allow_restart = story.get("allow_restart", False)
+                    
+                    formatted_text = f"{header}\n\n{text}"
+                    ending_keyboard = get_ending_keyboard(run_after.story_id, allow_restart)
+                else:
+                    # История не найдена, но финал есть
+                    formatted_text = f"🏁 Финал\n\n{text}"
+                    ending_keyboard = InlineKeyboardMarkup(inline_keyboard=[
+                        [InlineKeyboardButton(text="📚 Другие истории", callback_data="show_stories:0")],
+                        [InlineKeyboardButton(text="🏠 Меню", callback_data="service_menu")]
+                    ])
             else:
-                # История не найдена, но финал есть
+                # Run не найден, но это финал
                 formatted_text = f"🏁 Финал\n\n{text}"
                 ending_keyboard = InlineKeyboardMarkup(inline_keyboard=[
                     [InlineKeyboardButton(text="📚 Другие истории", callback_data="show_stories:0")],
                     [InlineKeyboardButton(text="🏠 Меню", callback_data="service_menu")]
                 ])
             
-            # Отправляем новое сообщение с финалом и сворачиваем ReplyKeyboard
+            # Отправляем новое сообщение с финалом
             await callback.message.answer(
                 formatted_text,
                 reply_markup=ending_keyboard
             )
+            logger.info(f"Финал отправлен для run_id: {new_run_id}")
         else:
             # Обычная сцена - обновляем сообщение БЕЗ сервисных кнопок
             await callback.message.edit_text(text, reply_markup=keyboard)
