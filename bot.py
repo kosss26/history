@@ -226,8 +226,12 @@ async def process_choice(callback: CallbackQuery):
 async def on_startup():
     """Действия при запуске бота"""
     logger.info("Запуск бота...")
-    await db.connect()
-    logger.info("Бот запущен")
+    try:
+        await db.connect()
+        logger.info("Бот запущен")
+    except Exception as e:
+        logger.error(f"Ошибка подключения к БД: {e}", exc_info=True)
+        raise
 
 async def on_shutdown():
     """Действия при остановке бота"""
@@ -237,13 +241,23 @@ async def on_shutdown():
 
 async def main():
     """Главная функция"""
+    # Проверка конфигурации
+    if not BOT_TOKEN:
+        logger.error("BOT_TOKEN не установлен! Проверьте .env файл или переменные окружения.")
+        print("ОШИБКА: BOT_TOKEN не установлен!")
+        return
+    
     # Регистрируем обработчики запуска и остановки
     dp.startup.register(on_startup)
     dp.shutdown.register(on_shutdown)
     
     # Запускаем бота
     logger.info("Запуск polling...")
-    await dp.start_polling(bot)
+    try:
+        await dp.start_polling(bot)
+    except Exception as e:
+        logger.error(f"Критическая ошибка при запуске: {e}", exc_info=True)
+        raise
 
 if __name__ == "__main__":
     try:
