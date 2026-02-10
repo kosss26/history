@@ -342,10 +342,6 @@ async def start_story(callback: CallbackQuery):
         text, keyboard, run_id = result
         
         # Сервисные кнопки убраны - навигация только через ReplyKeyboard
-        if keyboard:
-            run = await RunRepository._get_run_by_id(run_id)
-            if run:
-        
         await callback.message.edit_text(text, reply_markup=keyboard)
         await callback.answer()
     except Exception as e:
@@ -479,10 +475,6 @@ async def restart_story(callback: CallbackQuery):
         text, keyboard, run_id = result
         
         # Сервисные кнопки убраны - навигация только через ReplyKeyboard
-        if keyboard:
-            run = await RunRepository._get_run_by_id(run_id)
-            if run:
-        
         await callback.message.edit_text(text, reply_markup=keyboard)
         await callback.answer("✅ История перезапущена")
     else:
